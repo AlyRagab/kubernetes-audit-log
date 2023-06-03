@@ -27,15 +27,6 @@ The important thing we need to know is that request is recorded with an associat
   - Metadata: log request metadata (requesting user, timestamp, resource, verb, etc.) but not request or response body
   - Request: log event metadata and request body but not response body. This does not apply to non-resource requests
   - RequestResponse: log event metadata, request and response bodies. This does not apply to non-resource requests
-- The simple Audit Policy may look like this:
-
-```yaml
-# Log all requests at the Metadata level.
-apiVersion: audit.k8s.io/v1
-kind: Policy
-rules:
-- level: Metadata
-```
 
 ## Audit Backend:
 - Audit backend, simply defines where we want to send audit logs. The API Server provides two backends to send logs and these are the following
