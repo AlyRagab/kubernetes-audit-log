@@ -1,5 +1,5 @@
 # kubernetes-audit-log
-Shipping Kubernetes Audit Logs to Slack
+Shipping Kubernetes Audit Logs to Slack as Webhook backend
 
 Based on the official documentation says “Kubernetes Audit logs provide a security-relevant, chronological set of records documenting the sequence of actions in a cluster.”, so by collecting and analyzing them we can answer these following questions:
 
