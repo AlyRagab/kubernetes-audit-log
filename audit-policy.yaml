@@ -1,9 +1,0 @@
-apiVersion: audit.k8s.io/v1
-kind: Policy
-rules:
-- level: Metadata
-  # Add your existing rules here...
-webhook:
-  # Set the URL of your webhook server
-  clientConfig:
-    url: http://192.168.1.10:8080/webhook

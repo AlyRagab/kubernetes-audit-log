@@ -45,9 +45,27 @@ rules:
 
 ```bash
 ## defines the details of the Audit Event, what they should include
---audit-policy-file=/etc/kubernetes/audit-policy.yaml
+--audit-policy-file=/etc/ssl/certs/policy.yaml
 ## specifies the log file path that log backend uses to write audit events
 --audit-log-path=/var/log/audit.log
+## Enabling the Webhook, So K8s will send POST to a webhook we develop
+--audit-webhook-config-file=/etc/ssl/certs/webhook.yaml
 ```
 
-https://hooks.slack.com/services/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
+## Testing using Minikube
+
+- Copy policy.yaml and Webhook.yaml in `~/.minikube/files/etc/ssl/certs/` directory
+- Set these two environment variables ["SLACK_TOKEN", "CHANNEL_ID"]
+- Execute the below commands
+
+```bash
+go run main.go # To run our API
+minikube start \
+  --extra-config=apiserver.audit-policy-file=/etc/ssl/certs/policy.yaml \
+  --extra-config=audit-webhook-config-file=/etc/ssl/certs/webhook.yaml
+minikube ssh ## just to make sure of the configs
+sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+```
+
+- Make sure of the IP of the API added to the policy.yaml and webhook.yaml configs
+- Make sure of Slack Token with the related scope permissions and the Slack app to be added to the corresponding channel correctly

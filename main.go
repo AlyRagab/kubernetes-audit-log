@@ -1,56 +1,41 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
 	"net/http"
-	"time"
+	"os"
 
-	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/gorilla/mux"
 	"github.com/nlopes/slack"
 )
 
-type AuditLogPayload struct {
-	Event     string    `json:"event"`
-	User      string    `json:"user"`
-	Timestamp time.Time `json:"timestamp"`
-}
-
-type AuditLogPayloadType struct {
-	Event     string    `json:"event"`
-	User      string    `json:"user"`
-	Timestamp time.Time `json:"timestamp"`
-}
-
-func handleAuditLogs(c *gin.Context) {
-	// Parse the audit log payload from the request
-	var auditLogPayload AuditLogPayloadType
-	if err := c.ShouldBindJSON(&auditLogPayload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	// Send the audit log message to Slack
-	webhookURL := "xoxb-5079192664693-5391519133056-2X35uzRu1tgEiF2TgTuROHa8"
-	sendAuditLogToSlack(auditLogPayload, webhookURL)
-	c.JSON(http.StatusOK, gin.H{"message": "Audit log received"})
-}
-
-func sendAuditLogToSlack(log AuditLogPayloadType, webhookURL string) {
-	slackClient := slack.New(webhookURL)
-	message := formatAuditLogMessage(log)
-	// Send message to Slack
-	_, _, err := slackClient.PostMessage("#kubernetes-audit-logs", slack.MsgOptionText(message, false))
+func webhook(w http.ResponseWriter, r *http.Request) {
+	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-}
 
-// Format the audit log message
-func formatAuditLogMessage(log AuditLogPayloadType) string {
-	return fmt.Sprintf("Audit log received:\nEvent: %s\nUser: %s\nTimestamp: %s", log.Event, log.User, log.Timestamp)
+	// Send the audit log message to Slack
+	apiToken := os.Getenv("SLACK_TOKEN")
+	channelID := os.Getenv("CHANNEL_ID")
+	sclient := slack.New(apiToken, slack.OptionDebug(true))
+	attachment := slack.Attachment{
+		Pretext: "Kubernetes Audit Log",
+		Color:   "#3EB489",
+		Fields: []slack.AttachmentField{
+			{
+				Value: string(reqBody),
+			},
+		},
+	}
+	sclient.PostMessage(channelID, slack.MsgOptionAttachments(attachment))
 }
 
 func main() {
-	router := gin.Default()
-	router.POST("/auditLogs", handleAuditLogs)
-	router.Run(":8080")
+	r := mux.NewRouter()
+	r.HandleFunc("/auditLogs", webhook).Methods("POST")
+	log.Info("Starting Server on 0.0.0.0:8080")
+	http.ListenAndServe(":8080", r)
 }
