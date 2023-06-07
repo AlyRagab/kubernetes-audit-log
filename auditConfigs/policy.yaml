@@ -62,4 +62,4 @@ rules:
       - "RequestReceived"
 webhook:
   clientConfig:
-    url: http://192.168.1.10:8080/auditLogs
+    url: http://192.168.1.10:8080/webhook
