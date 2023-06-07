@@ -35,7 +35,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/auditLogs", webhook).Methods("POST")
+	r.HandleFunc("/webhook", webhook).Methods("POST")
 	log.Info("Starting Server on 0.0.0.0:8080")
 	http.ListenAndServe(":8080", r)
 }
