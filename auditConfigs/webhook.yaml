@@ -9,7 +9,7 @@ users:
 - name: default
   user:
     username: default
-    password: some-password
+    password: anything
 contexts:
 - name: minikube
   context:
