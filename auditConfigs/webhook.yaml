@@ -4,7 +4,7 @@ preferences: {}
 clusters:
 - name: minikube
   cluster:
-    server: http://192.168.1.10:8080/auditLogs
+    server: http://192.168.1.10:8080/webhook
 users:
 - name: default
   user:
